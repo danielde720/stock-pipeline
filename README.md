@@ -1,9 +1,6 @@
-### <div align="center">
+## <p align='center'> Stock-pipeline Project </p>
 
- Stock-Pipeline 
-
-</div>
-
+<br>
 <br>
 <br>
 
