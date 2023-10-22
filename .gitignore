@@ -1,0 +1,30 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+
+# Virtual Environments
+myflow/
+venv/
+*.venv/
+.env
+
+# Logs
+logs/
+
+# Configuration secrets
+config/
+*.env
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.swp
+
+# Cassandra data and logs
+cassandra/
+
+# OS generated
+.DS_Store
