@@ -1,59 +1,94 @@
-import logging
-from confluent_kafka import Consumer, KafkaError
+# Import necessary libraries from the Confluent Kafka and Cassandra packages
+from confluent_kafka import Consumer, KafkaException,  KafkaError 
 from cassandra.cluster import Cluster
-from cassandra.auth import PlainTextAuthProvider
-import json  # Added for safer data parsing
+import json
+import logging
+from cassandra.policies import DCAwareRoundRobinPolicy
 
-# Logging Configuration
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Set up logging with INFO level and a specific format
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
 
-# Cassandra Configuration
+def create_kafka_consumer():
+    try:
+        # Configuration dictionary for the Kafka consumer
+        conf = {
+            'bootstrap.servers': '127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094',
+            'group.id': 'stock_data_group',
+            'auto.offset.reset': 'earliest',
+        }
+        logging.info('Creating Kafka consumer...')
+        # Create and return a Kafka Consumer instance with the specified configuration
+        return Consumer(conf)
+    except Exception as e:
+        logging.error(f'Failed to create Kafka consumer: {e}')
+        raise
 
-cluster = Cluster(contact_points=['172.19.0.7'], port=9042, protocol_version=4)
+def create_cassandra_session():
+    try:
+        # Set up a load balancing policy for connecting to Cassandra
+        load_balancing_policy = DCAwareRoundRobinPolicy(local_dc='datacenter1')
+        # Create and return a Cassandra Cluster instance, specifying the host, port, and load balancing policy
+        cluster = Cluster(['127.0.0.1'], port=9042, load_balancing_policy=load_balancing_policy, protocol_version=4 )
+        logging.info('Connecting to Cassandra...')
+        session = cluster.connect()
+        logging.info('Connected to Cassandra.')
+        return session
+    except Exception as e:
+        logging.error(f'Failed to connect to Cassandra: {e}')
+        raise
 
-session = cluster.connect('stock_keyspace')
-
-# Kafka Configuration
-conf = {
-    'bootstrap.servers': '127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094',  # Assuming Kafka brokers are on host machine
-    'group.id': 'stock_group',
-    'auto.offset.reset': 'earliest'
-}
-
-consumer = Consumer(conf)
-consumer.subscribe(['stock_data'])
-
-try:
-    while True:
-        msg = consumer.poll(1.0)
-
-        if msg is None:
-            continue
-        if msg.error():
-            if msg.error().code() == KafkaError._PARTITION_EOF:
-                logger.info('Reached end of partition %d' % (msg.partition()))
-            else:
-                logger.error('Error while consuming message: %s' % (msg.error().str()))
+def on_message(msg, session):
+    if msg.error():
+        # Handle Kafka message errors
+        if msg.error().code() == KafkaError._PARTITION_EOF:
+            logging.info(f"Consumer reached end of {msg.topic()}:{msg.partition()} at offset {msg.offset()}")
         else:
-            # Proper message received
-            data = msg.value().decode('utf-8')
-            stock_data = json.loads(data)  # Safely parse the data using json.loads
-            logger.info('Received message: %s' % stock_data)
+            logging.error(f'Kafka error: {msg.error()}')
+            raise KafkaException(msg.error())
+    else:
+        try:
+            # Parse the Kafka message value from JSON
+            stock_data = json.loads(msg.value().decode('utf-8'))
+            # Log the data types of the stock_data fields
+            logging.info(f'Types - symbol: {type(stock_data["symbol"])}, last_price: {type(stock_data["last_price"])}, volume: {type(stock_data["volume"])}, timestamp: {type(stock_data["timestamp"])}')
+            # Cassandra query to insert stock data into the database
+            insert_query = """
+            INSERT INTO stock_data.updated_stock (symbol, last_price, volume, timestamp)
+            VALUES (%s, %s, CAST(%s AS float), %s)
+            """
+            # Log and execute the Cassandra query
+            logging.info(f'Executing query: {insert_query % (stock_data["symbol"], stock_data["last_price"], stock_data["volume"], stock_data["timestamp"])}')  # Log the query being executed
+            session.execute(insert_query, (stock_data['symbol'], stock_data['last_price'], float(stock_data['volume']), stock_data['timestamp']))
+            logging.info(f'Inserted stock data for {stock_data["symbol"]}')
+        except Exception as e:
+            logging.error(f'Failed to process message: {e}', exc_info=True)
 
-            # Insert into Cassandra
-            session.execute(
-                """
-                INSERT INTO stock_data (symbol, timestamp, last_price, volume)
-                VALUES (%s, %s, %s, %s)
-                """,
-                (stock_data['symbol'], stock_data['timestamp'], stock_data['last_price'], stock_data['volume'])
-            )
+def main():
+    # Create Kafka consumer and Cassandra session
+    consumer = create_kafka_consumer()
+    cassandra_session = create_cassandra_session()
+    # Subscribe to the Kafka topic 'stock_data'
+    logging.info('Subscribing to topic: stock_data')
+    consumer.subscribe(['stock_data'])
+    
+    try:
+        # Continuously poll for messages from Kafka, and process each message using on_message
+        while True:
+            msg = consumer.poll(1.0)
+            if msg is None:
+                continue
+            on_message(msg, cassandra_session)
+    except KeyboardInterrupt:
+        logging.info('Interrupted by user')
+    except Exception as e:
+        logging.error(f'Error: {e}')
+    finally:
+        # Close the Kafka consumer and Cassandra session when done
+        logging.info('Closing consumer and Cassandra session...')
+        consumer.close()
+        cassandra_session.cluster.shutdown()
+        logging.info('Consumer and Cassandra session closed.')
 
-except KeyboardInterrupt:
-    pass
-
-finally:
-    consumer.close()
-    session.shutdown()
-    cluster.shutdown()
+# Entry point of the script
+if __name__ == "__main__":
+    main()

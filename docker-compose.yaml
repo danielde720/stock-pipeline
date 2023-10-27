@@ -398,6 +398,7 @@ services:
       - airflow-kafka
       - kafka-network
 
+
  
 
 volumes:
