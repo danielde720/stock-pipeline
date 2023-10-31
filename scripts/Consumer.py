@@ -12,7 +12,7 @@ def create_kafka_consumer():
     try:
         # Configuration dictionary for the Kafka consumer
         conf = {
-            'bootstrap.servers': '127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094',
+            'bootstrap.servers': 'kafka1:19092,kafka2:19093,kafka3:19094',
             'group.id': 'stock_data_group',
             'auto.offset.reset': 'earliest',
         }
@@ -28,7 +28,8 @@ def create_cassandra_session():
         # Set up a load balancing policy for connecting to Cassandra
         load_balancing_policy = DCAwareRoundRobinPolicy(local_dc='datacenter1')
         # Create and return a Cassandra Cluster instance, specifying the host, port, and load balancing policy
-        cluster = Cluster(['127.0.0.1'], port=9042, load_balancing_policy=load_balancing_policy, protocol_version=4 )
+        #auth_provider = PlainTextAuthProvider(username='cassandra', password='cassandra')
+        cluster = Cluster(['cassandra'], port=9042, load_balancing_policy=load_balancing_policy, protocol_version=4 )
         logging.info('Connecting to Cassandra...')
         session = cluster.connect()
         logging.info('Connected to Cassandra.')

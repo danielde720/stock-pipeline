@@ -1,0 +1,70 @@
+version: '3.8'
+
+x-airflow-common:
+  &airflow-common
+  image: extending_airflow:latest
+  environment:
+    &airflow-common-env
+    PYTHONPATH: "/opt/airflow/dags:/opt/airflow/scripts"
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./airflow/plugins:/opt/airflow/plugins
+    - ./airflow/airflow.cfg:/opt/airflow/airflow.cfg
+    - ./scripts:/opt/airflow/scripts
+    - ./test:/opt/airflow/test
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    networks:
+      - airflow-kafka
+
+  redis:
+    image: redis:latest
+    expose:
+      - 6379
+    networks:
+      - airflow-kafka
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8090:8080"
+    networks:
+      - airflow-kafka
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    networks:
+      - airflow-kafka
+
+  airflow-worker:
+    <<: *airflow-common
+    command: celery worker
+    networks:
+      - airflow-kafka
+
+  airflow-init:
+    <<: *airflow-common
+    command: db upgrade
+    depends_on:
+      - postgres
+
+volumes:
+  postgres-db-volume:
+
+networks:   
+  airflow-kafka:
+    external: true

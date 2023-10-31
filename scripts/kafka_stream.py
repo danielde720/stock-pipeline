@@ -16,7 +16,7 @@ API_KEY =  "ck45smhr01qus81pq6egck45smhr01qus81pq6f0" #os.getenv("Stock_API_Key"
 def create_kafka_producer():
     return KafkaProducer(
         # Specify the Kafka bootstrap servers (brokers)
-        bootstrap_servers=['127.0.0.1:9092', '127.0.0.1:9093', '127.0.0.1:9094'],
+        bootstrap_servers=['kafka1:19092', 'kafka2:19093', 'kafka3:19094'],
         # Use a lambda function to serialize the message values to JSON
         value_serializer=lambda v: json.dumps(v).encode('utf-8')
     )

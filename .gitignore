@@ -6,7 +6,7 @@ __pycache__/
 *.egg
 
 # Virtual Environments
-myflow/
+myenv/
 venv/
 *.venv/
 .env
@@ -28,3 +28,4 @@ cassandra/
 
 # OS generated
 .DS_Store
+airflow/logs/
