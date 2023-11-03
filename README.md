@@ -26,10 +26,23 @@ Here’s a walkthrough of the project's architecture and the rationale behind th
 - **[Finnhub API](https://finnhub.io/)**: Provides a plethora of real-time data including stock market data, which is the focal point of this project. 
 
 ### Data Streaming:
-- **Apache Kafka**: Renowned for its near real-time data processing capabilities, Kafka is used to facilitate data streaming from the Finnhub API to a staging area. In the staging area, the data undergoes a series of validation and integrity checks before progressing to the `stock_data` topic. Any data failing the checks is rerouted to a monitoring area for further examination. This mechanism mirrors a production environment where data integrity is paramount, and latency is traded off to ensure data quality.
+- **Apache Kafka**: Known for its near real-time data processing capabilities, Kafka is used to facilitate data streaming from the Finnhub API to a staging area. In the staging area, the data undergoes a series of data quality and integrity checks before progressing to the `stock_data` topic. Any data failing the checks is rerouted to a monitoring topic named bad_data for further examination. . This mechanism mirrors a production environment where data integrity is paramount, and latency is traded off to ensure data quality, the image below shows the 3 topics we created and used.
+
+<br>
+<br>
+
+![Screenshot 2023-11-02 at 8 47 19 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/920fd5bf-2283-48f3-8725-8b9a36d1ae06)
+
+
+<br>
+<br>
+
+
+
 
 ### Data Validation:
 - **Staging Area in Kafka**: A dedicated staging area within Kafka to run data validation and integrity checks. This step is crucial to ensure that only accurate and complete data progresses through the pipeline.
+- the reason we sent the data that dosent pass the checks to a monitoring topic instead of just leaving it in the staging area or deleting it. is because if we see the bad_data topic constantly growing, we know that theirs something wrong with the api and we can get on it right away vs without monitoring it we wouldnt know if the api is working properly as it should. and the quality and integrity checks consist of validating the schema, data type, monitoring if each symbol is atleat getting data once every 4 hours because if it isnt then theirs something wrong and we would need to act on it right away and other checks
 
 ### Database:
 - **Cassandra NoSQL Database**: Chosen for its superior write optimization, scalability, both vertically and horizontally. While NoSQL databases can be less efficient for reads and joins due to their key-value architecture, the simplicity of our data schema (comprising of four columns) alleviates this concern, making Cassandra a fitting choice.
@@ -57,7 +70,10 @@ This project serves as a template for handling real-time data efficiently, ensur
 
 ![Screenshot 2023-11-02 at 9 19 16 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/bef83c37-c722-45ce-9bf4-de2b521a3970)
 
-![Screenshot 2023-11-02 at 8 46 37 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/14b12470-b14e-4f07-b840-f884b1c314ef)
 
-![Screenshot 2023-11-02 at 8 47 19 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/920fd5bf-2283-48f3-8725-8b9a36d1ae06)
+
+
+
+![kafkadrawing](https://github.com/danielde720/stock-pipeline/assets/141448979/40605e42-e5d8-4495-a433-0d414c052293)
+
 
