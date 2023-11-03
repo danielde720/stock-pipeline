@@ -50,7 +50,7 @@ def on_message(ws, message):
                 # Encode the key to bytes
                 key_to_send_bytes = key_to_send.encode('utf-8')
                 # Send the data to the 'stock_data' Kafka topic
-                producer.send('stock_data', key=key_to_send_bytes, value=data_to_send)
+                producer.send('staging', key=key_to_send_bytes, value=data_to_send)
                 # Log the sent data
                 logging.info(f"Sent data to Kafka with key {key_to_send} and value {data_to_send}")
             except Exception as e:

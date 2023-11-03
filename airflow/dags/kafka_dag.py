@@ -1,53 +1,30 @@
 from airflow import DAG
 from airflow.decorators import task, dag
-from airflow.utils.dates import days_ago
-from kafka import KafkaProducer
-from confluent_kafka import Consumer, KafkaException, KafkaError 
-from cassandra.cluster import Cluster
-import plotly.graph_objects as go
-import plotly.express as px
-import pandas as pd
-import json
-import logging
-import time
-from dateutil import parser
+from datetime import datetime
 
-@dag(schedule_interval='@daily', start_date=days_ago(1), catchup=False)
-def data_pipeline():
+@dag(schedule_interval='@daily', start_date=datetime(2023, 11, 3), catchup=False)
+def kafka_cassandra_pipeline():
 
     @task
-    def run_kafka_stream():
-        kafka_stream.main()
-        return "Kafka Stream Completed"
+    def produce_data():
+        # Your Kafka producer code here
+        pass
 
     @task
-    def run_consumer():
-        # Your Consumer.main() code here, converted to a function
-        ...
-        return "Consumer Completed"
+    def validate_data():
+        # Your data validation code here
+        pass
 
     @task
-    def run_visualization():
-        # Your visual.py code here, converted to a function
-        ...
-        return "Visualization Completed"
+    def consume_data():
+        # Your Kafka consumer and Cassandra insertion code here
+        pass
 
-    @task
-    def run_integrity_check():
-        # Your data integrity check code
-        ...
-        return "Integrity Check Completed"
+    produce_task = produce_data()
+    validate_task = validate_data()
+    consume_task = consume_data()
 
-    @task
-    def run_quality_check():
-        # Your data quality check code
-        ...
-        return "Quality Check Completed"
+    produce_task >> validate_task >> consume_task
 
-    kafka_result = run_kafka_stream()
-    consumer_result = run_consumer()
-    visual_result = run_visualization()
-    integrity_check_result = run_integrity_check()
-    quality_check_result = run_quality_check()
-
-data_pipeline_dag = data_pipeline()
+# Assign the DAG to a variable to indicate it should be discovered by Airflow
+kafka_cassandra_dag = kafka_cassandra_pipeline()
