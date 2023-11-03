@@ -48,3 +48,16 @@ Here’s a walkthrough of the project's architecture and the rationale behind th
 - The use of containerization and a distributed database showcases a system built for scalability and reliability, critical attributes for handling real-time financial data.
 
 This project serves as a template for handling real-time data efficiently, ensuring data quality, and presenting the data in a user-friendly, interactive format.
+
+![Screenshot 2023-11-02 at 4 01 58 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/2685cb12-bdf6-4bab-89c4-4f70ec8e1584)
+
+![Screenshot 2023-11-02 at 4 01 47 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/729c4198-73c4-4fa4-b150-a6793f1cad78)
+
+![Screenshot 2023-10-26 at 8 30 36 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/29fa1a27-8226-45c9-97f9-84d81b024fe3)
+
+![Screenshot 2023-11-02 at 9 19 16 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/bef83c37-c722-45ce-9bf4-de2b521a3970)
+
+![Screenshot 2023-11-02 at 8 46 37 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/14b12470-b14e-4f07-b840-f884b1c314ef)
+
+![Screenshot 2023-11-02 at 8 47 19 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/920fd5bf-2283-48f3-8725-8b9a36d1ae06)
+
