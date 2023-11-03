@@ -4,6 +4,8 @@ from cassandra.cluster import Cluster
 import json
 import logging
 from cassandra.policies import DCAwareRoundRobinPolicy
+import time
+from dateutil import parser
 
 # Set up logging with INFO level and a specific format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
@@ -50,19 +52,21 @@ def on_message(msg, session):
         try:
             # Parse the Kafka message value from JSON
             stock_data = json.loads(msg.value().decode('utf-8'))
-            # Log the data types of the stock_data fields
-            logging.info(f'Types - symbol: {type(stock_data["symbol"])}, last_price: {type(stock_data["last_price"])}, volume: {type(stock_data["volume"])}, timestamp: {type(stock_data["timestamp"])}')
-            # Cassandra query to insert stock data into the database
+            # Convert the string formatted timestamp to a datetime object
+            dt = parser.parse(stock_data['timestamp'])
+            # Convert the datetime object to a UNIX timestamp in milliseconds
+            timestamp_ms = int(time.mktime(dt.timetuple()) * 1000 + dt.microsecond / 1000)
+            # Prepare the Cassandra query
             insert_query = """
-            INSERT INTO stock_data.updated_stock (symbol, last_price, volume, timestamp)
+            INSERT INTO stock_data.stock (symbol, last_price, volume, timestamp)
             VALUES (%s, %s, CAST(%s AS float), %s)
             """
-            # Log and execute the Cassandra query
-            logging.info(f'Executing query: {insert_query % (stock_data["symbol"], stock_data["last_price"], stock_data["volume"], stock_data["timestamp"])}')  # Log the query being executed
-            session.execute(insert_query, (stock_data['symbol'], stock_data['last_price'], float(stock_data['volume']), stock_data['timestamp']))
+            # Execute the Cassandra query
+            session.execute(insert_query, (stock_data['symbol'], stock_data['last_price'], float(stock_data['volume']), timestamp_ms))
             logging.info(f'Inserted stock data for {stock_data["symbol"]}')
         except Exception as e:
             logging.error(f'Failed to process message: {e}', exc_info=True)
+
 
 def main():
     # Create Kafka consumer and Cassandra session

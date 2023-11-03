@@ -1,41 +1,53 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.decorators import task, dag
 from airflow.utils.dates import days_ago
-import kafka_stream
-import Consumer
+from kafka import KafkaProducer
+from confluent_kafka import Consumer, KafkaException, KafkaError 
+from cassandra.cluster import Cluster
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+import json
+import logging
+import time
+from dateutil import parser
 
-default_args = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-}
+@dag(schedule_interval='@daily', start_date=days_ago(1), catchup=False)
+def data_pipeline():
 
-dag = DAG(
-    'kafka_dag',
-    default_args=default_args,
-    description='A simple Kafka DAG',
-    schedule_interval='@daily',
-    start_date=days_ago(1),
-)
+    @task
+    def run_kafka_stream():
+        kafka_stream.main()
+        return "Kafka Stream Completed"
 
-def run_kafka_stream():
-    kafka_stream.main()  # Assuming your script has a main() function
+    @task
+    def run_consumer():
+        # Your Consumer.main() code here, converted to a function
+        ...
+        return "Consumer Completed"
 
-def run_consumer():
-    Consumer.main()  # Assuming your script has a main() function
+    @task
+    def run_visualization():
+        # Your visual.py code here, converted to a function
+        ...
+        return "Visualization Completed"
 
-t1 = PythonOperator(
-    task_id='kafka_stream',
-    python_callable=run_kafka_stream,
-    dag=dag,
-)
+    @task
+    def run_integrity_check():
+        # Your data integrity check code
+        ...
+        return "Integrity Check Completed"
 
-t2 = PythonOperator(
-    task_id='consumer',
-    python_callable=run_consumer,
-    dag=dag,
-)
+    @task
+    def run_quality_check():
+        # Your data quality check code
+        ...
+        return "Quality Check Completed"
 
-t1 >> t2  # Set task dependencies
+    kafka_result = run_kafka_stream()
+    consumer_result = run_consumer()
+    visual_result = run_visualization()
+    integrity_check_result = run_integrity_check()
+    quality_check_result = run_quality_check()
+
+data_pipeline_dag = data_pipeline()

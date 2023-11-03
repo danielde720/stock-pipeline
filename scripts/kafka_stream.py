@@ -5,6 +5,7 @@ import logging
 from kafka import KafkaProducer
 import os
 import traceback
+from datetime import datetime
 
 # Set up logging with INFO level and a specific format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,13 +36,15 @@ def on_message(ws, message):
     if "data" in msg_data:
         # Process each trade in the message data
         for trade in msg_data["data"]:
+            # Convert timestamp from milliseconds to seconds and format as ISO 8601
+            timestamp = datetime.utcfromtimestamp(int(trade['t']) / 1000).isoformat()
             # Prepare the key and data to send to Kafka
             key_to_send = trade['s']
             data_to_send = {
                 'symbol': trade['s'],
                 'last_price': trade['p'],
                 'volume': float(trade['v']),
-                'timestamp': trade['t']
+                'timestamp': timestamp
             }
             try:
                 # Encode the key to bytes

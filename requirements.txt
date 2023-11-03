@@ -4,3 +4,4 @@ confluent-kafka==2.3.0
 websocket-client==1.6.4
 pytest==7.4.3
 streamlit==1.28.0
+ plotly==5.18.0

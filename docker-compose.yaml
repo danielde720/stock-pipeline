@@ -145,8 +145,18 @@ services:
       - airflow-kafka
       - kafka-network
 
-
- 
+  streamlit:
+    image: streamlit_app:latest
+    container_name: streamlit
+    volumes:
+      - ./scripts:/app
+    ports:
+      - "8501:8501"
+    depends_on:
+      - cassandra
+    networks:
+      - airflow-kafka
+      - kafka-network
 
 volumes:
   postgres-db-volume:
