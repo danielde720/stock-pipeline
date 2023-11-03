@@ -39,7 +39,7 @@
 
 
 ### <p align='center'> Data Streaming: </p>
-- **Apache Kafka**: Known for its near real-time data processing capabilities, Kafka is used to facilitate data streaming from the Finnhub API to a staging area. In the staging area, the data undergoes a series of data quality and integrity checks before progressing to the `stock_data` topic. Any data failing the checks is rerouted to a monitoring topic named bad_data for further examination. . This mechanism mirrors a production environment where data integrity is paramount, and latency is traded off to ensure data quality. Underneath is a screenshot of our brokers and their configurations using our ui that we defined in our docker compose.
+- **Apache Kafka**: Known for its near real-time data processing capabilities, Kafka is used to facilitate data streaming from the Finnhub API to a staging area. In the staging area, the data undergoes a series of data quality and integrity checks before progressing to the `stock_data` topic. Any data failing the checks is rerouted to a monitoring topic named bad_data for further examination. . This mechanism mirrors a production environment where data integrity is paramount, and latency is traded off to ensure data quality. Underneath is a screenshot of our brokers and their configurations using our ui that we defined in our docker compose file.
 
 <br>
 <br>
