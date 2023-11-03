@@ -7,17 +7,17 @@ def kafka_cassandra_pipeline():
 
     @task
     def produce_data():
-        # Your Kafka producer code here
+        
         pass
 
     @task
     def validate_data():
-        # Your data validation code here
+        
         pass
 
     @task
     def consume_data():
-        # Your Kafka consumer and Cassandra insertion code here
+        
         pass
 
     produce_task = produce_data()
