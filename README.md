@@ -111,7 +111,7 @@ The diagram below provides a high-level view of our cluster architecture, illust
 ### <p align='center'> Data Visualization: </p>
 - **Streamlit**: A Python-centric tool used to craft an intuitive visualization to represent the stock data interactively. Below is how the visualization looks when it first spins up along with the other containers.
 
-![Screenshot 2023-11-02 at 4 01 47 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/729c4198-73c4-4fa4-b150-a6793f1cad78)
+![Screenshot 2023-11-03 at 4 54 42 PM](https://github.com/danielde720/stock-pipeline/assets/141448979/276ab4ee-d2b0-4318-b11b-5e8ba6552b0d)
 
 
 In order to show a graph of how the stock changes over time you have to double click on the symbol and it will show like so.
@@ -141,8 +141,10 @@ In order to show a graph of how the stock changes over time you have to double c
 
 
 <p align="center">
-  <img src="https://github.com/danielde720/stock-pipeline/assets/141448979/bef83c37-c722-45ce-9bf4-de2b521a3970" alt="Screenshot 2023-11-02 at 9 19 16 PM"/>
+  <img src="https://github.com/danielde720/stock-pipeline/assets/141448979/266de78e-4eb4-493c-9f2a-1395630197c5" alt="Screenshot 2023-11-06 at 8 57 13 PM">
 </p>
+
+
 
 
 
