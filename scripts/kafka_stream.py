@@ -10,8 +10,8 @@ from datetime import datetime
 # Set up logging with INFO level and a specific format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Load your API key (you can also load from an environment variable for better security)
-API_KEY =  "ck45smhr01qus81pq6egck45smhr01qus81pq6f0" #os.getenv("Stock_API_Key")
+# Load API key 
+API_KEY = os.getenv("Stock_API_Key")
 
 # Function to create a Kafka producer with specified configurations
 def create_kafka_producer():
